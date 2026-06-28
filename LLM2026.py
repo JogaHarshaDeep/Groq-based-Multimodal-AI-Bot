@@ -1,21 +1,56 @@
 from dotenv import load_dotenv
 load_dotenv()
 import os
+import base64
 import streamlit as st
 from PyPDF2 import PdfReader
+from PIL import Image
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
 from langchain_groq import ChatGroq
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnablePassthrough
+from langchain_core.messages import HumanMessage
 
-st.header("My Chatbot")
+st.set_page_config(
+    page_title="Multimodal AI Assistant",
+    page_icon="🤖",
+    layout="wide"
+)
+
+st.header("My Multimodal AI Assitant")
+st.caption("📄 Chat with PDFs • 🖼 Analyze Images • ⚡ Powered by Groq, LangChain & FAISS")
+
+st.markdown("""
+<style>
+
+/* Background */
+.stApp{
+    background-color:#FFF9C4;
+}
+
+/* Buttons */
+.stButton>button{
+    background-color:#FF8C00;
+    color:white;
+    border-radius:8px;
+    border:none;
+}
+
+/* Upload Box */
+[data-testid="stFileUploader"]{
+    border:2px solid #FF8C00;
+    border-radius:8px;
+}
+
+</style>
+""", unsafe_allow_html=True)
+
 
 with st.sidebar:
     st.title("Your Documents")
     file = st.file_uploader("Upload a PDF file and start asking questions", type="pdf")
-
 
 # Extract text
 if file is not None:
@@ -86,3 +121,41 @@ if file is not None:
         })
 
         st.write(response.content)
+
+
+with st.sidebar:
+    st.title("Image")
+    img = st.file_uploader("upload image",type=["jpg","jpeg","png"])
+
+if img is not None:
+    image = Image.open(img)
+    st.image(image)
+
+    bas64img = base64.b64encode(img.getvalue()).decode("utf-8")
+
+    ImageLM = ChatGroq(
+        groq_api_key=os.environ["GROQ_API_KEY"],
+        model_name = "meta-llama/llama-4-scout-17b-16e-instruct",
+        temperature=0.15
+    )
+
+    # User input
+    user_question1 = st.text_input("Type your question here")
+
+    if user_question1:
+
+        message = HumanMessage(
+        content=[
+            {"type": "text", "text":f"""You are an expert vision assistant. Analyze the uploaded image carefully and answer the following question,
+            Question:
+            {user_question1}"""},
+            {
+                "type": "image_url",
+                "image_url": {
+                    "url": f"data:image/jpeg;base64,{bas64img}"
+                },
+            },
+        ]
+    )
+        result = ImageLM.invoke([message])
+        st.write(result.content)
