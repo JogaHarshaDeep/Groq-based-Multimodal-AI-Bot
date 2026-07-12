@@ -3,7 +3,6 @@ load_dotenv()
 import os
 import base64
 import streamlit as st
-import streamlit_analytics2 as streamlit_analytics
 from PyPDF2 import PdfReader
 from PIL import Image
 from langchain_text_splitters import RecursiveCharacterTextSplitter
@@ -19,10 +18,6 @@ st.set_page_config(
     page_icon="🤖",
     layout="wide"
 )
-
-with streamlit_analytics.track():
-    st.title("HarshaDeepJoga-Multimodal AI")
-
 st.header("My Multimodal AI Assitant")
 st.caption("📄 Chat with PDFs • 🖼 Analyze Images • ⚡ Powered by Groq, LangChain & FAISS")
 
