@@ -14,4 +14,3 @@ faiss-cpu
 PyPDF2==3.0.1
 python-dotenv
 langchain-groq
-streamlit-analytics2
