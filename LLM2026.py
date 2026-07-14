@@ -83,7 +83,7 @@ if file is not None:
     vector_store = FAISS.from_texts(chunks, embeddings)
 
     # User input
-    user_question = st.text_input("Type your question here")
+    user_question = st.text_input("Type your question here" , key="pdf_question")
 
     if user_question:
         match = vector_store.similarity_search(user_question)
@@ -139,7 +139,7 @@ if img is not None:
     )
 
     # User input
-    user_question1 = st.text_input("Type your question here")
+    user_question1 = st.text_input("Type your question here", key="image_question")
 
     if user_question1:
 
